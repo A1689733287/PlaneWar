@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">PlaneWar</string>
+    <string name="option">选项</string>
+    <string name="sound">声音</string>
+    <string name="light">亮度</string>
+    <string name="back">返回</string>
+    <string name="help">帮助</string>
+    <string name="virtual">虚拟按键</string>
+    <string name="defaul">默认(触屏)</string>
+    <string name="defaul1">默认(打开)</string>
+    <string name="score">排行榜</string>
+</resources>
