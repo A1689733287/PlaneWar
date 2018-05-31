@@ -12,10 +12,10 @@ import com.gtl.planewar.utils.BGM;
 import com.gtl.planewar.utils.Config;
 import com.gtl.planewar.utils.FullScreen;
 import com.gtl.planewar.utils.GameGetResource;
-import com.gtl.planewar.utils.GameSoundPool;
 import com.gtl.planewar.utils.GetDM;
 import com.gtl.planewar.utils.ShowExit;
 import com.gtl.planewar.utils.SpUtil;
+import com.gtl.planewar.utils.audio.Music;
 
 
 import static com.gtl.planewar.R.layout.activity_main;
@@ -23,8 +23,6 @@ import static com.gtl.planewar.R.layout.activity_main;
 public class MainActivity extends AppCompatActivity {
     private ImageView start_iv, score_iv, option_iv, help_iv, exit_iv;
     Intent intent;
-    public static BGM bgm;
-    public static GameSoundPool sound;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,9 +31,7 @@ public class MainActivity extends AppCompatActivity {
         new GetDM(this);
         new GameGetResource(this);
         setContentView(activity_main);
-        bgm = new BGM(this, GameGetResource.bgm);
-        sound = new GameSoundPool(this);
-        sound.initGameSound();
+
         init();
         soundValue();
     }
@@ -56,11 +52,10 @@ public class MainActivity extends AppCompatActivity {
     public void soundValue() {
         boolean isCheck = SpUtil.getBoolean(getApplicationContext(), Config.CHECK_BOOLEAN, true);
         if (!isCheck) {
-            GameSoundPool.volume = 0;
-            BGM.mediaPlayer.setVolume(0, 0);
+//            BGM.mediaPlayer.setVolume(0, 0);
         } else {
-            GameSoundPool.volume = 2;
-            BGM.mediaPlayer.setVolume(2, 2);
+//            BGM.mediaPlayer.setVolume(2, 2);
+
         }
     }
 

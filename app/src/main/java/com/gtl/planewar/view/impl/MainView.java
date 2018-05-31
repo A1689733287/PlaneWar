@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.gtl.planewar.R;
 import com.gtl.planewar.model.impl.Aid;
 import com.gtl.planewar.model.impl.Boom;
 import com.gtl.planewar.model.impl.Boss;
@@ -22,10 +23,14 @@ import com.gtl.planewar.utils.Config;
 import com.gtl.planewar.utils.GameGetResource;
 import com.gtl.planewar.utils.GetDM;
 import com.gtl.planewar.utils.ScoreShare;
+import com.gtl.planewar.utils.audio.Music;
+import com.gtl.planewar.utils.audio.MusicFactory;
+import com.gtl.planewar.utils.audio.Sound;
 import com.gtl.planewar.view.MainActivity;
 import com.gtl.planewar.view.ViewActivity;
 import com.gtl.planewar.view.IMove;
 
+import java.io.IOException;
 import java.util.Vector;
 
 
@@ -70,8 +75,10 @@ public class MainView extends View implements IMove, Runnable {
     private Message msg;//消息
     private ScoreShare scoreShare;//分数工具类
     Bitmap pause;
+    private Sound sound;
     Thread th;
     Canvas canvas;
+    private Music music;
 
     public MainView(Context context) {
         super(context);
@@ -111,6 +118,18 @@ public class MainView extends View implements IMove, Runnable {
         bulletAdds = new Vector<>();
         littleBoss = new Boss(ufo, screenWidth / 2 - ufo.getWidth() / 2);
         scoreShare = new ScoreShare(context);
+        sound = new Sound(context);
+        /*子弹声音*/
+        sound.loadSound(1, R.raw.shoot);
+        /*获得物品声音*/
+        sound.loadSound(2,R.raw.getgoods);
+        /*爆炸音效*/
+        sound.loadSound(3,R.raw.boom);
+        try {
+            music = MusicFactory.createMusicFromResource(context,R.raw.bgm);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -119,7 +138,6 @@ public class MainView extends View implements IMove, Runnable {
      * @param canvas 画布
      */
     public void onDraw(Canvas canvas) {
-        super.draw(canvas);
         this.canvas = canvas;
         th = new Thread(this);
         th.start();
@@ -205,7 +223,7 @@ public class MainView extends View implements IMove, Runnable {
             if (!play) {
                 pau();
             }
-            MainActivity.bgm.start();
+           music.onStart();
             //背景逻辑
             gameBg.logic();
             //绘制敌机逻辑
@@ -258,7 +276,7 @@ public class MainView extends View implements IMove, Runnable {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            MainActivity.sound.playSound(3, 0);
+                           sound.onPlay(1, 0);
                         }
                     }).start();
 
@@ -271,7 +289,7 @@ public class MainView extends View implements IMove, Runnable {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            MainActivity.sound.playSound(3, 0);
+                            sound.onPlay(1, 0);
                         }
                     }).start();
 
@@ -284,7 +302,7 @@ public class MainView extends View implements IMove, Runnable {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            MainActivity.sound.playSound(3, 0);
+                            sound.onPlay(1, 0);
                         }
                     }).start();
                 }
@@ -305,7 +323,7 @@ public class MainView extends View implements IMove, Runnable {
                         if (enemys.get(j).getHp() <= 0) {
                             score += 10;
                             booms.addElement(new Boom(boom, enemys.get(j).enemyX, enemys.get(j).enemyY));
-                            MainActivity.sound.playSound(1, 0);
+                            sound.onPlay(3, 0);
                             enemys.remove(j);
                         }
                         b.isDead = true;
@@ -317,7 +335,7 @@ public class MainView extends View implements IMove, Runnable {
                     littleBoss.setBoosHp(littleBoss.getBoosHp() - 1);
                     if (littleBoss.getBoosHp() <= 0) {
                         score += 100;
-                        MainActivity.bgm.stop();
+                        music.onStop();
                         msg.what = Config.WIN_VIEW;
                         msg.arg1 = score;
                         viewActivity.getHandler().sendMessage(msg);
@@ -342,7 +360,7 @@ public class MainView extends View implements IMove, Runnable {
                         if (enemys.get(j).getHp() <= 0) {
                             score += 10;
                             booms.addElement(new Boom(boom, enemys.get(j).enemyX, enemys.get(j).enemyY));
-                            MainActivity.sound.playSound(1, 0);
+                            sound.onPlay(3, 0);
                             enemys.remove(j);
                         }
                         b.isDead = true;
@@ -354,7 +372,7 @@ public class MainView extends View implements IMove, Runnable {
                     littleBoss.setBoosHp(littleBoss.getBoosHp() - 1);
                     if (littleBoss.getBoosHp() <= 0) {
                         score += 100;
-                        MainActivity.bgm.stop();
+                        music.onStop();
                         msg.what = Config.WIN_VIEW;
                         msg.arg1 = score;
                         viewActivity.getHandler().sendMessage(msg);
@@ -379,7 +397,7 @@ public class MainView extends View implements IMove, Runnable {
                         if (enemys.get(j).getHp() <= 0) {
                             score += 10;
                             booms.addElement(new Boom(boom, enemys.get(j).enemyX, enemys.get(j).enemyY));
-                            MainActivity.sound.playSound(1, 0);
+                            sound.onPlay(3, 0);
                             enemys.remove(j);
                         }
                         b.isDead = true;
@@ -391,10 +409,11 @@ public class MainView extends View implements IMove, Runnable {
                     littleBoss.setBoosHp(littleBoss.getBoosHp() - 1);
                     if (littleBoss.getBoosHp() <= 0) {
                         score += 100;
-                        MainActivity.bgm.stop();
+                        music.onStop();
                         msg.what = Config.WIN_VIEW;
                         msg.arg1 = score;
                         viewActivity.getHandler().sendMessage(msg);
+
                         scoreShare.saveScore(score);
                     }
                     b.isDead = true;
@@ -464,7 +483,7 @@ public class MainView extends View implements IMove, Runnable {
                 if (player.collisionBullet(eb)) {
                     player.setHp(player.getHp() - 1);
                     if (player.getHp() <= 0) {
-                        MainActivity.bgm.stop();
+                        music.onStop();
                         msg.what = Config.DIE_VIEW;
                         msg.arg1 = score;
                         viewActivity.getHandler().sendMessage(msg);
@@ -486,7 +505,7 @@ public class MainView extends View implements IMove, Runnable {
                 if (player.collisionBullet(bb)) {
                     player.setHp(player.getHp() - 1);
                     if (player.getHp() <= 0) {
-                        MainActivity.bgm.stop();
+                        music.onStop();
                         msg.what = Config.DIE_VIEW;
                         msg.arg1 = score;
                         viewActivity.getHandler().sendMessage(msg);
@@ -508,7 +527,7 @@ public class MainView extends View implements IMove, Runnable {
                 if (player.collisionBlood(aid)) {
                     player.setHp(player.getHp() + 2);
                     aid.isDead = true;
-                    MainActivity.sound.playSound(2, 0);
+                    sound.onPlay(2, 0);
                 }
             }
             //添加子弹的逻辑
@@ -522,7 +541,7 @@ public class MainView extends View implements IMove, Runnable {
                 //主角与添加子弹的逻辑
                 if (player.collisionAdd(ba)) {
                     bulletLevel = bulletLevel + 1;
-                    MainActivity.sound.playSound(2, 0);
+                    sound.onPlay(2, 0);
                     ba.isDead = true;
                 }
             }
